@@ -87,3 +87,4 @@ def flag_endpoint():
         return jsonify({"error": "Missing flag"}), 400
 
 if __name__ == '__main__':
+    app.run()
