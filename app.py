@@ -16,16 +16,15 @@ order_books_df = pd.read_csv(file_path)
 order_books_df['time'] = order_books_df['time'].str.replace(' JST', '', regex=False)
 
 # 'time'列をdatetime型に変換
-order_books_df['time'] = pd.to_datetime(
-    order_books_df['time'], 
-    format='%Y-%m-%d %H:%M:%S %z'
-)
+# order_books_df['time'] = pd.to_datetime(
+#     order_books_df['time'], 
+#     format='%Y-%m-%d %H:%M:%S %z'
+# )
 
 def calculate_ohlc(code, year, month, day, hour):
     """
     指定された銘柄コードと時刻に基づいてOHLCを計算する
     """
-    # タイムゾーンを定義（日本標準時）
     jst = timezone("Asia/Tokyo")
 
     # 指定された時間帯のデータを抽出
@@ -39,8 +38,8 @@ def calculate_ohlc(code, year, month, day, hour):
     )
     filtered_data = order_books_df[mask]
 
-    if filtered_data.empty:
-        return None
+    # if filtered_data.empty:
+    #     return None
 
     # OHLCを計算
     open_price = filtered_data.iloc[0]['price']
