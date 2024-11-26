@@ -13,8 +13,8 @@ order_books_df = pd.read_csv(file_path)
 
 # 日付をdatetime型に変換
 order_books_df['time'] = pd.to_datetime(
-    order_books_df['time'].str.replace(" JST", "", regex=False),
-    format='%Y-%m-%d %H:%M:%S'
+    order_books_df['time'], 
+    format='%Y-%m-%d %H:%M:%S %z'
 )
 
 def calculate_ohlc(code, year, month, day, hour):
