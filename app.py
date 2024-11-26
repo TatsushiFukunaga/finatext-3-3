@@ -68,7 +68,11 @@ def candle_endpoint():
     ohlc = calculate_ohlc(code, year, month, day, hour)
     if ohlc:
         logging.info(f"Calculated OHLC: {ohlc}")
-        return jsonify(ohlc), 200
+        # return jsonify(ohlc), 200
+        
+        # クエリパラメータを含めたリダイレクトURLを作成
+        redirect_url = f"/redirect?open={ohlc['open']}&high={ohlc['high']}&low={ohlc['low']}&close={ohlc['close']}"
+        return redirect(redirect_url, code=302)
     else:
         return jsonify({"error": "No data found for the given parameters"}), 404
 
