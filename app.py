@@ -11,7 +11,10 @@ app = Flask(__name__)
 file_path = 'order_books.csv'
 order_books_df = pd.read_csv(file_path)
 
-# 日付をdatetime型に変換
+# JSTを取り除き、+0900のみ残す
+order_books_df['time'] = order_books_df['time'].str.replace(' JST', '', regex=False)
+
+# 'time'列をdatetime型に変換
 order_books_df['time'] = pd.to_datetime(
     order_books_df['time'], 
     format='%Y-%m-%d %H:%M:%S %z'
@@ -47,30 +50,24 @@ def calculate_ohlc(code, year, month, day, hour):
         "close": int(close_price)
     }
 
-@app.route('/v1/q3-3/agent', methods=['POST'])
-def agent_endpoint():
+@app.route('/candle', methods=['GET'])
+def candle_endpoint():
     """
-    POST /v1/q3-3/agent エンドポイント
+    GET /candle エンドポイント
     """
-    data = request.get_json()
-    target = data.get('target')
+    # リクエストパラメータを取得
+    code = request.args.get('code')
+    year = int(request.args.get('year'))
+    month = int(request.args.get('month'))
+    day = int(request.args.get('day'))
+    hour = int(request.args.get('hour'))
 
-    if not target:
-        return jsonify({"error": "target is required"}), 400
-
-    # 仮想的に3回リクエストを処理
-    responses = []
-    for i in range(3):
-        code = "FTHD"
-        year, month, day, hour = 2021, 12, 22, 10 + i  # 例: 各リクエストで異なる時間
-        ohlc = calculate_ohlc(code, year, month, day, hour)
-        if ohlc:
-            responses.append(ohlc)
-        else:
-            return jsonify({"error": "No data found for the given parameters"}), 404
-
-    # 結果を返却
-    return jsonify(responses), 200
+    # OHLCを計算
+    ohlc = calculate_ohlc(code, year, month, day, hour)
+    if ohlc:
+        return jsonify(ohlc), 200
+    else:
+        return jsonify({"error": "No data found for the given parameters"}), 404
 
 @app.route('/flag', methods=['PUT'])
 def flag_endpoint():
