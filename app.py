@@ -24,9 +24,13 @@ def calculate_ohlc(code, year, month, day, hour):
     """
     指定された銘柄コードと時刻に基づいてOHLCを計算する
     """
+    # タイムゾーンを定義（日本標準時）
+    jst = timezone("Asia/Tokyo")
+
     # 指定された時間帯のデータを抽出
-    start_time = datetime(year, month, day, hour, 0, 0)
-    end_time = datetime(year, month, day, hour, 59, 59)
+    start_time = datetime(year, month, day, hour, 0, 0, tzinfo=jst)
+    end_time = datetime(year, month, day, hour, 59, 59, tzinfo=jst)
+
     mask = (
         (order_books_df['code'] == code) &
         (order_books_df['time'] >= start_time) &
