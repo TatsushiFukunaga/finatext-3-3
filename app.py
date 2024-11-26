@@ -21,28 +21,19 @@ order_books_df['time'] = pd.to_datetime(
     format='%Y-%m-%d %H:%M:%S %z'
 )
 
-def calculate_ohlc(code, year, month, day, hour):
+def calculate_ohlc(df, code, year, month, day, hour):
     """
-    指定された銘柄コードと時刻に基づいてOHLCを計算する
+    指定された条件で OHLC (ローソク足) を計算する
     """
-    # タイムゾーンを定義（日本標準時）
+    # タイムゾーンを定義
     jst = timezone("Asia/Tokyo")
-
-    # 指定された時間帯のデータを抽出
     start_time = datetime(year, month, day, hour, 0, 0, tzinfo=jst)
     end_time = datetime(year, month, day, hour, 59, 59, tzinfo=jst)
 
-    mask = (
-        (order_books_df['code'] == code) &
-        (order_books_df['time'] >= start_time) &
-        (order_books_df['time'] <= end_time)
-    )
-    filtered_data = order_books_df[mask]
+    # 時間範囲と銘柄コードでデータをフィルタリング
+    filtered_data = df[(df['code'] == code) & (df['time'] >= start_time) & (df['time'] <= end_time)]
 
-    if filtered_data.empty:
-        return None
-
-    # OHLCを計算
+    # OHLCの計算
     open_price = filtered_data.iloc[0]['price']
     high_price = filtered_data['price'].max()
     low_price = filtered_data['price'].min()
@@ -60,14 +51,12 @@ def candle_endpoint():
     """
     GET /candle エンドポイント
     """
-    # リクエストパラメータを取得
     code = request.args.get('code')
     year = int(request.args.get('year'))
     month = int(request.args.get('month'))
     day = int(request.args.get('day'))
     hour = int(request.args.get('hour'))
 
-    # OHLCを計算
     ohlc = calculate_ohlc(code, year, month, day, hour)
     if ohlc:
         return jsonify(ohlc), 200
