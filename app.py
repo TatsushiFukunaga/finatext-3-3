@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = Flask(__name__)
 
 # データの読み込み
-file_path = '/mnt/data/order_books.csv'
+file_path = 'order_books.csv'
 order_books_df = pd.read_csv(file_path)
 
 # 日付をdatetime型に変換
