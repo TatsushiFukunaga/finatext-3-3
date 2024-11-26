@@ -67,6 +67,7 @@ def candle_endpoint():
 
     ohlc = calculate_ohlc(code, year, month, day, hour)
     if ohlc:
+        logging.info(f"Received flag: {jsonify(ohlc)}")
         return jsonify(ohlc), 200
     else:
         return jsonify({"error": "No data found for the given parameters"}), 404
