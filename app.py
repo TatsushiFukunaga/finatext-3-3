@@ -11,8 +11,8 @@ app = Flask(__name__)
 file_path = 'order_books.csv'
 order_books_df = pd.read_csv(file_path)
 
-# JSTを取り除き、+0900のみ残す
 order_books_df['time'] = order_books_df['time'].str.replace(' JST', '', regex=False)
+order_books_df['time'] = order_books_df['time'].str.replace(' +0900', '', regex=False)
 
 order_books_df['time'] = pd.to_datetime(
     order_books_df['time'], 
@@ -41,7 +41,7 @@ def calculate_ohlc(code, year, month, day, hour):
         "open": int(open_price),
         "high": int(high_price),
         "low": int(low_price),
-        "close": int(close_price+1)
+        "close": int(close_price)
     }
 
 @app.route('/candle', methods=['GET'])
