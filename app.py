@@ -8,29 +8,25 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 app = Flask(__name__)
 
-file_path = 'order_books.csv'
-order_books_df = pd.read_csv(file_path)
+# file_path = 'order_books.csv'
+file_path = 'order_books_example.csv'
+df = pd.read_csv(file_path)
 
-order_books_df['time'] = order_books_df['time'].str.replace(' JST', '', regex=False)
-order_books_df['time'] = order_books_df['time'].str.replace(' +0900', '', regex=False)
-
-order_books_df['time'] = pd.to_datetime(
-    order_books_df['time'], 
-    format='%Y-%m-%d %H:%M:%S %z'
-)
+df['time'] = pd.to_datetime(df['time'].str.replace(' JST', '', regex=False), format='%Y-%m-%d %H:%M:%S %z')
+df['price'] = df['price'].astype(float)
 
 def calculate_ohlc(code, year, month, day, hour):
     jst = timezone("Asia/Tokyo")
-
-    start_time = datetime(year, month, day, hour, 0, 0, tzinfo=jst)
-    end_time = datetime(year, month, day, hour, 59, 59, tzinfo=jst)
-
+    # start_time と end_time を tz-aware にする
+    start_time = jst.localize(datetime(year, month, day, hour, 0, 0))
+    end_time = jst.localize(datetime(year, month, day, hour, 59, 59))
+    
     mask = (
-        (order_books_df['code'] == code) &
-        (order_books_df['time'] >= start_time) &
-        (order_books_df['time'] <= end_time)
+        (df['code'] == code) &
+        (df['time'] >= start_time) &
+        (df['time'] <= end_time)
     )
-    filtered_data = order_books_df[mask]
+    filtered_data = df[mask]
 
     open_price = filtered_data.iloc[0]['price']
     high_price = filtered_data['price'].max()
