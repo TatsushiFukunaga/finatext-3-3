@@ -8,8 +8,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 app = Flask(__name__)
 
-# file_path = 'order_books.csv'
-file_path = 'order_books_example.csv'
+file_path = 'order_books.csv'
+# file_path = 'order_books_example.csv'
 df = pd.read_csv(file_path)
 
 df['time'] = pd.to_datetime(df['time'].str.replace(' JST', '', regex=False), format='%Y-%m-%d %H:%M:%S %z')
@@ -20,7 +20,7 @@ def calculate_ohlc(code, year, month, day, hour):
     # start_time と end_time を tz-aware にする
     start_time = jst.localize(datetime(year, month, day, hour, 0, 0))
     end_time = jst.localize(datetime(year, month, day, hour, 59, 59))
-    
+
     mask = (
         (df['code'] == code) &
         (df['time'] >= start_time) &
