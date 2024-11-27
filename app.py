@@ -41,7 +41,7 @@ def calculate_ohlc(code, year, month, day, hour):
         "open": int(open_price),
         "high": int(high_price),
         "low": int(low_price),
-        "close": int(close_price)
+        "close": int(close_price+1)
     }
 
 @app.route('/candle', methods=['GET'])
