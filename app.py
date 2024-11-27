@@ -8,26 +8,20 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 app = Flask(__name__)
 
-# データの読み込み
 file_path = 'order_books.csv'
 order_books_df = pd.read_csv(file_path)
 
 # JSTを取り除き、+0900のみ残す
 order_books_df['time'] = order_books_df['time'].str.replace(' JST', '', regex=False)
 
-# 'time'列をdatetime型に変換
 order_books_df['time'] = pd.to_datetime(
     order_books_df['time'], 
     format='%Y-%m-%d %H:%M:%S %z'
 )
 
 def calculate_ohlc(code, year, month, day, hour):
-    """
-    指定された銘柄コードと時刻に基づいてOHLCを計算する
-    """
     jst = timezone("Asia/Tokyo")
 
-    # 指定された時間帯のデータを抽出
     start_time = datetime(year, month, day, hour, 0, 0, tzinfo=jst)
     end_time = datetime(year, month, day, hour, 59, 59, tzinfo=jst)
 
@@ -38,10 +32,6 @@ def calculate_ohlc(code, year, month, day, hour):
     )
     filtered_data = order_books_df[mask]
 
-    # if filtered_data.empty:
-    #     return None
-
-    # OHLCを計算
     open_price = filtered_data.iloc[0]['price']
     high_price = filtered_data['price'].max()
     low_price = filtered_data['price'].min()
@@ -68,11 +58,7 @@ def candle_endpoint():
     ohlc = calculate_ohlc(code, year, month, day, hour)
     if ohlc:
         logging.info(f"Calculated OHLC: {ohlc}")
-        # return jsonify(ohlc), 200
-
-        # クエリパラメータを含めたリダイレクトURLを作成
-        redirect_url = f"/redirect?open={ohlc['open']}&high={ohlc['high']}&low={ohlc['low']}&close={ohlc['close']}"
-        return redirect(redirect_url, code=302)
+        return jsonify(ohlc), 200
     else:
         return jsonify({"error": "No data found for the given parameters"}), 404
 
